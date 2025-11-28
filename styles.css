@@ -1,0 +1,486 @@
+:root {
+    /* Cores e Gradientes do Modelo */
+    --cor-fundo-claro: #808da0; /* Sugestão: Alterado para um cinza muito claro para melhor contraste */
+    --cor-fundo-escuro: #16002A; 
+    --cor-texto-principal: #333333;
+    --cor-texto-secundario: #000000; /* Sugestão: Alterado para um cinza médio */
+    --cor-navbar-active: #EE3F89; /* Cor do botão ativo na navbar */
+    
+    --gradiente-roxo-claro: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+    --gradiente-roxo-escuro: linear-gradient(135deg, #240041 0%, #000000 100%);
+    --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-dark: 0 20px 40px rgba(0, 0, 0, 0.5);
+    --arredondamento-card: 20px;
+
+    /* Cores dos Ícones */
+    --icon-red: #F84E4E;
+    --icon-green: #39D463;
+    --icon-orange: #FF9B40;
+    --icon-cyan: #31C7D1;
+    --icon-purple: #8D67F9;
+    --icon-blue: #5D8CFF;
+    
+    /* Novo: Cor do Ícone de Carrinho */
+    --cor-carrinho: #1abc9c; 
+    --cor-carrinho-badge: #ff4500;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--cor-fundo-claro);
+    color: var(--cor-texto-principal);
+    line-height: 1.6;
+}
+
+/* --- NAV BAR FIDELIDADE 100% --- */
+.navbar-container {
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 10px 0;
+}
+
+.navbar {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-icon {
+    width: 30px; 
+    height: 30px; 
+    margin-right: 10px;
+    background: linear-gradient(45deg, #FF69B4, #9370DB); 
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.logo-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    display: block;
+    line-height: 1;
+}
+
+.logo-subtitle {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--cor-texto-secundario);
+    display: block;
+    line-height: 1;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    align-items: center; /* Garantir que os itens da nav fiquem alinhados */
+}
+/* --- ESTILOS DO CARRINHO AUMENTADOS --- */
+
+.nav-links .cart-icon {
+    padding: 0; 
+    background: none !important;
+    color: var(--cor-carrinho); 
+    font-size: 1.5rem; /* Aumenta o tamanho do ícone em si */
+}
+
+.cart-icon {
+    position: relative;
+    display: inline-block;
+    padding: 10px; 
+}
+
+.cart-icon i {
+    font-size: 1.5rem; /* Garante que o ícone do carrinho seja grande */
+}
+
+.cart-count {
+    position: absolute;
+    top: 0px; 
+    right: -2px; /* Ajustado ligeiramente para a direita */
+    background-color: var(--cor-carrinho-badge); 
+    color: white;
+    border-radius: 50%;
+    padding: 4px 7px; /* Aumenta o preenchimento do badge */
+    font-size: 0.8em; /* Aumenta o tamanho da fonte do contador */
+    font-weight: bold;
+    min-width: 22px; /* Garante que o círculo seja maior */
+    text-align: center;
+    line-height: 1;
+    border: 2px solid white; 
+}
+/* FIM DOS ESTILOS DO CARRINHO AUMENTADOS */
+
+/* Estilo geral dos links da Navbar */
+.nav-links a {
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 10px;
+    color: var(--cor-texto-principal);
+    font-weight: 600;
+    /* CORREÇÃO AQUI: background estava faltando 'd' */
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Estilo de hover para links normais */
+.nav-links a:not(.active):not(.cart-icon):hover {
+    background-color: #f0f0f0;
+}
+
+
+/* Botão Ativo da Navbar (Gradiente) */
+.nav-links .active {
+    background: var(--gradiente-roxo-claro);
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(93, 84, 254, 0.5);
+}
+
+/* --- ESTILOS DO CARRINHO --- */
+.nav-links .cart-icon {
+    /* O ícone do carrinho não deve ter o padding de 8px 15px dos outros links, pois ele usa o padding interno */
+    padding: 0; 
+    background: none !important;
+    color: var(--cor-carrinho); 
+}
+
+.cart-icon {
+    position: relative;
+    display: inline-block;
+    padding: 10px; 
+    font-size: 1.1rem; /* Aumenta um pouco o ícone */
+}
+
+.cart-count {
+    position: absolute;
+    top: 0; /* Ajustado para o topo exato */
+    right: 0; /* Ajustado para a direita exata */
+    background-color: var(--cor-carrinho-badge); /* Cor de destaque */
+    color: white;
+    border-radius: 50%;
+    padding: 3px 6px;
+    font-size: 0.6em; /* Reduzindo para caber melhor */
+    font-weight: bold;
+    min-width: 18px; 
+    text-align: center;
+    line-height: 1;
+    border: 2px solid white; /* Borda branca para destacar no fundo */
+}
+/* FIM DOS ESTILOS DO CARRINHO */
+
+
+/* --- GRADIENTES E BOTÕES --- */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    color: white;
+    background: var(--gradiente-roxo-claro);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(93, 84, 254, 0.6);
+}
+
+.btn-primary i {
+    margin-left: 8px;
+    color: white;
+}
+
+.btn-secondary {
+    padding: 12px 25px;
+    border: 2px solid #ffffff60;
+    border-radius: 10px;
+    background: transparent;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    /* CORREÇÃO AQUI: background estava faltando 'd' */
+    transition: background 0.3s; 
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+    background: -webkit-linear-gradient(45deg, #EE3F89, #5D54FE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- SEÇÃO HERO (BLOCO ROXO ESCURO) --- */
+.hero-section-wrapper {
+    padding: 40px 20px;
+    max-width: 1300px;
+    margin: 30px auto;
+}
+
+.hero-card {
+    background: var(--gradiente-roxo-escuro);
+    color: white;
+    padding: 50px;
+    border-radius: 25px;
+    box-shadow: var(--shadow-dark);
+    /* Padrão de + (Fundo de Grade) */
+    background-image: radial-gradient(#ffffff1a 1px, transparent 1px), radial-gradient(#ffffff1a 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+}
+
+.tag {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tag i { margin-right: 5px; color: #FFD700; }
+
+.hero-card h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 15px 0;
+    line-height: 1.1;
+}
+
+.hero-card h1 span.gradient-text {
+    /* Texto Picolé Manager com gradiente amarelo/roxo como na imagem */
+    background: -webkit-linear-gradient(45deg, #FFD700, #5D54FE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-card p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+    max-width: 700px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 40px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.stat-item h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-item p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+/* --- SEÇÃO MÓDULOS (CARTÕES BRANCOS) --- */
+.modules-section {
+    max-width: 1300px;
+    margin: 80px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--cor-texto-principal);
+    /* Título Módulos do Sistema com Gradiente */
+    background: -webkit-linear-gradient(45deg, #EE3F89, #5D54FE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 40px;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.module-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: var(--arredondamento-card);
+    text-align: left;
+    box-shadow: var(--shadow-light);
+    transition: transform 0.3s;
+    position: relative;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(93, 84, 254, 0.2);
+}
+
+.module-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 15px;
+}
+
+/* Cores dos Ícones */
+.icon-red { background-color: var(--icon-red); }
+.icon-green { background-color: var(--icon-green); }
+.icon-orange { background-color: var(--icon-orange); }
+.icon-cyan { background-color: var(--icon-cyan); }
+.icon-purple { background-color: var(--icon-purple); }
+.icon-blue { background-color: var(--icon-blue); }
+
+.module-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--cor-texto-principal);
+}
+
+.module-card p {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 15px;
+}
+
+.link-access {
+    color: #9340FF; 
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.link-access i {
+    margin-left: 5px;
+    transition: transform 0.3s;
+    color: #9340FF;
+}
+
+.link-access:hover i {
+    transform: translateX(5px);
+}
+
+/* --- SEÇÃO CTA (Bloco Branco Centralizado) --- */
+.cta-section {
+    padding: 50px 20px 80px;
+    text-align: center;
+}
+
+.cta-card {
+    background-color: white;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 50px 30px;
+    border-radius: var(--arredondamento-card);
+    box-shadow: var(--shadow-light);
+}
+
+.cta-icon {
+    /* Estrela Gradiente */
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: -webkit-linear-gradient(45deg, #EE3F89, #5D54FE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cta-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cta-card p {
+    color: var(--cor-texto-secundario);
+    margin-bottom: 30px;
+}
+
+.cta-button {
+    padding: 15px 35px;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 1024px) {
+    .modules-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .nav-links {
+        gap: 5px;
+    }
+    .hero-card h1 {
+        font-size: 2.5rem;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .hero-stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .modules-grid {
+        grid-template-columns: 1fr;
+    }
+    .section-title {
+        font-size: 2rem;
+    }
+}

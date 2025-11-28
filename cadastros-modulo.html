@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picolé Manager - Módulo de Cadastros</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* --- Variáveis e Estilos Globais --- */
+        :root {
+            --cor-fundo-claro: #33393b;
+            --cor-texto-principal: #333333;
+            --cor-texto-secundario: #6d6666;
+            
+            /* Cores Gerais */
+            --gradiente-roxo-nav: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+            --gradiente-cadastro-ativo: linear-gradient(90deg, #FF69B4 0%, #E94F8A 100%); /* Rosa mais forte */
+            --gradiente-explorar: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+
+            /* Cores de Fundo dos Ícones dos Módulos */
+            --cor-icone-vermelho: #FF6B6B;
+            --cor-icone-verde: #4CD964;
+            --cor-icone-laranja: #FF9500;
+            --cor-icone-ciano: #5AC8FA;
+            --cor-icone-roxo: #AF52DE;
+            --cor-icone-azul: #007AFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            /* Fundo branco/roxo suave */
+            background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.5) 0%, transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.5) 0%, transparent 40%),
+                        var(--cor-fundo-claro);
+            min-height: 100vh;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- NAV BAR --- */
+        /* ------------------------------------------------------------------ */
+        .navbar-container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+        }
+
+        .navbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo { display: flex; align-items: center; }
+
+        .logo-icon {
+            width: 35px; height: 35px; margin-right: 10px;
+            background: var(--gradiente-roxo-nav); 
+            border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; color: white; font-size: 1.4rem;
+        }
+
+        .logo-name {
+            font-size: 1.3rem; font-weight: 700; color: var(--cor-texto-principal);
+            display: block; line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem; font-weight: 400; color: var(--cor-texto-secundario);
+            display: block; line-height: 1;
+        }
+
+        .nav-links { list-style: none; display: flex; gap: 10px; }
+
+        .nav-links a {
+            text-decoration: none; padding: 10px 20px; border-radius: 15px;
+            color: var(--cor-texto-principal); font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Botão Ativo da Navbar (Gradiente Rosa/Roxo) */
+        .nav-links .active {
+            background: var(--gradiente-cadastro-ativo);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+        }
+        
+        /* ------------------------------------------------------------------ */
+        /* --- ESTILOS COMPARTILHADOS (MÓDULOS & CTA) --- */
+        /* ------------------------------------------------------------------ */
+
+        .main-content {
+            padding-top: 20px;
+        }
+
+        /* Títulos das Seções */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 10px;
+            
+            /* Gradiente Roxeado/Rosa para o Título */
+            background: -webkit-linear-gradient(45deg, #A855F7, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            text-align: center;
+            color: var(--cor-texto-secundario);
+            margin-bottom: 40px;
+        }
+
+        /* Container e Grid de Módulos */
+        .modules-section {
+            max-width: 1300px;
+            margin: 40px auto 80px; /* Reduz o top margin */
+            padding: 0 20px;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 30px;
+        }
+
+        /* Cards de Módulos */
+        .module-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            min-height: 180px;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 15px;
+            color: var(--cor-texto-principal);
+        }
+
+        .module-card p {
+            font-size: 0.95rem;
+            color: var(--cor-texto-secundario);
+            margin: 5px 0 15px;
+        }
+
+        /* Estilo dos Ícones dos Módulos */
+        .module-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            color: white;
+        }
+
+        /* Cores de Fundo dos Ícones */
+        .module-icon.icon-red { background-color: var(--cor-icone-vermelho); }
+        .module-icon.icon-green { background-color: var(--cor-icone-verde); }
+        .module-icon.icon-orange { background-color: var(--cor-icone-laranja); }
+        .module-icon.icon-cyan { background-color: var(--cor-icone-ciano); }
+        .module-icon.icon-purple { background-color: var(--cor-icone-roxo); }
+        .module-icon.icon-blue { background-color: var(--cor-icone-azul); }
+
+        /* Link de Acesso */
+        .link-access {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #EE3F89; 
+            transition: color 0.3s;
+        }
+        .link-access i {
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        .link-access:hover {
+            color: #9370DB; 
+        }
+        .link-access:hover i {
+            transform: translateX(3px);
+        }
+
+
+        /* SEÇÃO CTA (Pronto para Começar?) */
+        .cta-section {
+            max-width: 1300px;
+            margin: 80px auto 100px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .cta-card {
+            background-color: white;
+            border-radius: 30px;
+            padding: 50px 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .cta-card .section-title {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .cta-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #9370DB;
+            text-shadow: 0 0 10px rgba(147, 112, 219, 0.5);
+        }
+
+        .cta-card p {
+            color: var(--cor-texto-secundario);
+            margin-bottom: 30px;
+        }
+
+        /* Botão CTA (Explorar Sistema) */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-button {
+            background: var(--gradiente-explorar);
+            color: white;
+            box-shadow: 0 4px 15px rgba(238, 63, 137, 0.6);
+        }
+
+        .cta-button i {
+            color: white;
+            margin-left: 10px; 
+        }
+        .cta-button:hover {
+            box-shadow: 0 6px 20px rgba(238, 63, 137, 0.8);
+            transform: translateY(-2px);
+        }
+
+
+        /* ------------------------------------------------------------------ */
+        /* --- RESPONSIVIDADE --- */
+        /* ------------------------------------------------------------------ */
+        @media (max-width: 992px) {
+            .modules-grid {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+
+        @media (max-width: 600px) {
+            .modules-grid {
+                grid-template-columns: 1fr; 
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ice-cream"></i></div>
+                <div>
+                    <span class="logo-name">Picolé Manager</span>
+                    <span class="logo-subtitle">Sistema de Gestão Premium</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li> 
+                <li><a href="cadastros-modulo.html" class="btn-navbar active">Cadastros</a></li>
+                <li><a href="producao.html">Produção</a></li>
+                <li><a href="relatorios.html">Relatórios</a></li>
+                <li>
+    <a href="picoles_vendas.html" class="btn-navbar carrinho-icon">
+        <i class="fas fa-shopping-cart"></i> Carrinho
+    </a>
+</li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <section class="modules-section">
+            <h2 class="section-title">Módulo de Cadastros</h2>
+            <p class="section-subtitle">Gerencie as informações base do seu negócio: produtos, insumos e revendedores</p>
+
+            <div class="modules-grid">
+                <div class="module-card">
+                    <div class="module-icon icon-red"><i class="fas fa-tint"></i></div>
+                    <h3>Sabores</h3>
+                    <p>Gerencie os sabores de picolé</p>
+                    <a href="picoles.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="module-card">
+                    <div class="module-icon icon-green"><i class="fas fa-leaf"></i></div>
+                    <h3>Ingredientes</h3>
+                    <p>Controle de ingredientes</p>
+                    <a href="ingredientes.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="module-card">
+                    <div class="module-icon icon-orange"><i class="fas fa-box-open"></i></div>
+                    <h3>Embalagens</h3>
+                    <p>Tipos de embalagem</p>
+                    <a href="embalagens.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="module-card">
+                    <div class="module-icon icon-cyan"><i class="fas fa-cube"></i></div>
+                    <h3>Aditivos</h3>
+                    <p>Aditivos nutritivos</p>
+                    <a href="aditivos.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="module-card">
+                    <div class="module-icon icon-purple"><i class="fas fa-envelope-open-text"></i></div>
+                    <h3>Conservantes</h3>
+                    <p>Conservantes utilizados</p>
+                    <a href="conservantes.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="module-card">
+                    <div class="module-icon icon-blue"><i class="fas fa-users"></i></div>
+                    <h3>Revendedores</h3>
+                    <p>Cadastro de revendedores</p>
+                    <a href="revendedores.html" class="link-access">Acessar módulo <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+

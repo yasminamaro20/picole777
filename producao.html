@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picolé Manager - Gestão de Lotes</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* --- Variáveis e Estilos Globais --- */
+        :root {
+            --cor-fundo-claro: #f8f9fc;
+            --cor-texto-principal: #333333;
+            --cor-texto-secundario: #666666;
+            
+            /* Cores Gerais */
+            --gradiente-roxo-nav: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+            --gradiente-cadastro-ativo: linear-gradient(90deg, #FF69B4 0%, #E94F8A 100%); 
+            
+            /* Cores Específicas do Módulo Produção (Laranja/Vermelho) */
+            --cor-modulo-principal: #FF5722; /* Deep Orange */
+            --gradiente-novo-item: linear-gradient(45deg, #FF5722, #FF9800); /* Laranja vibrante */
+            --cor-tag-bg: #ffe0b2; /* Laranja bem claro para a tag */
+            
+            --cor-botao-cancelar: #f0f0f5;
+            --cor-input-borda: #ccc;
+            --cor-placeholder: #a0a0a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.5) 0%, transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.5) 0%, transparent 40%),
+                        var(--cor-fundo-claro);
+            min-height: 100vh;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- NAV BAR (Padrão) --- */
+        /* ------------------------------------------------------------------ */
+        .navbar-container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+        }
+        .navbar { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { display: flex; align-items: center; }
+        .logo-icon { width: 35px; height: 35px; margin-right: 10px; background: var(--gradiente-roxo-nav); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.4rem; }
+        .logo-name { font-size: 1.3rem; font-weight: 700; color: var(--cor-texto-principal); display: block; line-height: 1; }
+        .logo-subtitle { font-size: 0.75rem; font-weight: 400; color: var(--cor-texto-secundario); display: block; line-height: 1; }
+        .nav-links { list-style: none; display: flex; gap: 10px; }
+        .nav-links a { text-decoration: none; padding: 10px 20px; border-radius: 15px; color: var(--cor-texto-principal); font-weight: 600; transition: background 0.3s, color 0.3s; }
+        /* Estilo para o link de Produção ativo */
+        .nav-links .active-production { background: var(--gradiente-novo-item); color: white !important; box-shadow: 0 4px 15px rgba(255, 87, 34, 0.5); }
+        
+        /* ------------------------------------------------------------------ */
+        /* --- CONTEÚDO PRINCIPAL --- */
+        /* ------------------------------------------------------------------ */
+        .main-content { max-width: 1300px; margin: 0 auto; padding: 40px 20px; }
+        .header-gerenciamento { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* Tag e Título */
+        .header-gerenciamento .tag-gerenciamento { 
+            background-color: var(--cor-tag-bg); 
+            color: var(--cor-modulo-principal); 
+            padding: 5px 15px; 
+            border-radius: 50px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            display: inline-flex; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        .header-gerenciamento .tag-gerenciamento i { margin-right: 5px; }
+        .header-gerenciamento h1 { 
+            font-size: 2.5rem; font-weight: 700; 
+            /* Gradiente Produção */
+            background: -webkit-linear-gradient(45deg, var(--cor-modulo-principal), #FF9800); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; 
+        }
+        .header-gerenciamento p { font-size: 1rem; color: var(--cor-texto-secundario); margin-top: 5px; }
+
+        /* Botão Novo Item */
+        .btn-novo-item { 
+            display: inline-flex; 
+            align-items: center; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-decoration: none; 
+            color: white; 
+            background: var(--gradiente-novo-item); 
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.6); 
+            transition: transform 0.3s, box-shadow 0.3s; 
+        }
+        .btn-novo-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 87, 34, 0.8); }
+        .btn-novo-item i { margin-right: 10px; }
+
+        /* Card de Conteúdo */
+        .content-card { 
+            background-color: white; 
+            border-radius: 30px; 
+            padding: 40px; 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); 
+            text-align: center; 
+        }
+
+        /* Estado Vazio */
+        .empty-state { padding: 40px 0; }
+        .empty-state-icon i.fa-hourglass-half { font-size: 5rem; color: #FFCCBC; margin-bottom: 20px; display: block; } /* Laranja muito claro */
+        .empty-state-title { font-size: 1.5rem; font-weight: 600; color: var(--cor-texto-principal); margin-bottom: 5px; }
+        .empty-state-subtitle { color: var(--cor-texto-secundario); margin-bottom: 30px; }
+        .btn-adicionar-item { 
+            display: inline-flex; 
+            align-items: center; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            text-decoration: none; 
+            color: white; 
+            background: var(--gradiente-novo-item); 
+            box-shadow: 0 2px 10px rgba(255, 87, 34, 0.4); 
+            transition: transform 0.3s; 
+        }
+        .btn-adicionar-item:hover { transform: translateY(-1px); }
+        .btn-adicionar-item i { margin-right: 8px; }
+
+        /* Tabela de Itens */
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0 15px; text-align: left; }
+        .data-table th { color: var(--cor-texto-secundario); font-weight: 600; padding: 10px 20px; border-bottom: 2px solid #f0f0f0; }
+        .data-table td { background-color: #fcfcfc; border-radius: 10px; padding: 15px 20px; color: var(--cor-texto-principal); font-weight: 500; transition: background-color 0.2s; }
+        .data-table tbody tr:hover td { background-color: #f6f6f6; }
+        .data-table .actions-cell { text-align: right; }
+        .data-table .action-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 1rem; margin-left: 15px; transition: color 0.2s; }
+        .data-table .action-btn:hover { color: var(--cor-modulo-principal); }
+        
+        /* Tag de Status/Lote na Tabela */
+        .batch-tag { 
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 0.85rem; 
+            font-weight: 700;
+            display: inline-block;
+            background-color: #fce4ec; /* Rosa suave */
+            color: #C2185B; /* Rosa forte */
+        }
+        .status-tag {
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+        }
+        .status-pronto { background-color: #e8f5e9; color: #388e3c; } /* Verde - Pronto */
+        .status-producao { background-color: #fff3e0; color: #f57f17; } /* Amarelo - Em Produção */
+
+        /* ------------------------------------------------------------------ */
+        /* --- MODAL --- */
+        /* ------------------------------------------------------------------ */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.3); 
+            backdrop-filter: blur(5px); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 25px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2); 
+            width: 90%; 
+            max-width: 500px; 
+            position: relative; 
+            background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.2) 0%, transparent 40%), 
+                        radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.2) 0%, transparent 40%), white; 
+        }
+        .modal-card h2 { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            margin-bottom: 30px; 
+            text-align: left; 
+            /* Título com gradiente roxo/rosa (Padrão de destaque do modal) */
+            background: -webkit-linear-gradient(45deg, #FF69B4, #EE3F89); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            line-height: 1; 
+        }
+        .modal-card .close-btn { 
+            position: absolute; 
+            top: 25px; 
+            right: 25px; 
+            background: none; 
+            border: none; 
+            font-size: 1.5rem; 
+            color: var(--cor-texto-secundario); 
+            cursor: pointer; 
+            transition: color 0.2s; 
+        }
+        .form-row { display: flex; gap: 20px; }
+        .form-group { margin-bottom: 20px; text-align: left; flex: 1; }
+        .form-group label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            color: var(--cor-texto-principal); 
+            margin-bottom: 5px; 
+        }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px 15px; 
+            border: 1px solid var(--cor-input-borda); 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            background-color: #fcfcfc; 
+            transition: border-color 0.3s, box-shadow 0.3s; 
+            appearance: none; 
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%2D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0a0a0%22%20d%3D%22M287%2069.9l-143%20143L0%2069.9h287z%22%2F%3E%3C%2Fsvg%3E'); 
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px;
+        }
+        .form-group input[type="date"] {
+            appearance: auto;
+            background-image: none;
+            padding-right: 15px;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: #EE3F89; 
+            box-shadow: 0 0 0 3px rgba(238, 63, 137, 0.2); 
+            outline: none; 
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        .btn-cancelar { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            background-color: var(--cor-botao-cancelar); 
+            color: var(--cor-texto-principal); 
+            transition: background-color 0.2s; 
+        }
+        /* Botão Cadastrar (Laranja do módulo) */
+        .btn-cadastrar { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: white; 
+            background: var(--gradiente-novo-item); 
+            box-shadow: 0 4px 10px rgba(255, 87, 34, 0.4); 
+            transition: background 0.2s; 
+        }
+        .btn-cadastrar:hover { background: linear-gradient(45deg, #FF9800, #FF5722); }
+    </style>
+</head>
+<body onload="loadBatchesAndProducts()">
+
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ice-cream"></i></div>
+                <div>
+                    <span class="logo-name">Picolé Manager</span>
+                    <span class="logo-subtitle">Sistema de Gestão Premium</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li> 
+                <li><a href="cadastros-modulo.html">Cadastros</a></li>
+                <li><a href="producao.html" class="active-production">Produção</a></li>
+                <li><a href="relatorios.html">Relatórios</a></li>
+                <li>
+    <a href="picoles_vendas.html" class="btn-navbar carrinho-icon">
+        <i class="fas fa-shopping-cart"></i> Carrinho
+    </a>
+</li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <div class="header-gerenciamento">
+            <div>
+                <span class="tag-gerenciamento"><i class="fas fa-clock"></i> Produção</span>
+                <h1>Gestão de Lotes</h1>
+                <p>Monitore e registre os lotes de produção e seus status</p>
+            </div>
+            
+            <button class="btn-novo-item" onclick="openModal('newBatchModal')">
+                <i class="fas fa-plus"></i> Novo Lote
+            </button>
+        </div>
+
+        <div class="content-card">
+            <div id="emptyState" class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-hourglass-half"></i></div>
+                <h2 class="empty-state-title">Nenhum lote registrado</h2>
+                <p class="empty-state-subtitle">Registre seu primeiro lote de produção para começar o controle</p>
+                
+                <button class="btn-adicionar-item" onclick="openModal('newBatchModal')">
+                    <i class="fas fa-plus"></i> Registrar Lote
+                </button>
+            </div>
+            
+            <div id="batchList" style="display: none;">
+                 <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código do Lote</th>
+                            <th>Picolé Produzido</th>
+                            <th>Quantidade</th>
+                            <th>Data de Produção</th>
+                            <th>Status</th>
+                            <th class="actions-cell">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </main>
+    
+    <div id="newBatchModal" class="modal-overlay">
+        <div class="modal-card">
+            <button type="button" class="close-btn" onclick="closeModal('newBatchModal')"><i class="fas fa-times"></i></button>
+            <h2>Registrar Novo Lote</h2>
+            
+            <form id="batchForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="produtoLote">Picolé a ser Produzido *</label>
+                        <select id="produtoLote" required>
+                            <option value="" disabled selected>Selecione um Picolé</option>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="codigoLote">Código do Lote (Opcional)</label>
+                        <input type="text" id="codigoLote" placeholder="Ex: MNG20250601">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantidadeLote">Quantidade Produzida *</label>
+                        <input type="number" id="quantidadeLote" placeholder="Ex: 500" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="dataProducao">Data de Produção *</label>
+                        <input type="date" id="dataProducao" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="statusLote">Status Inicial *</label>
+                    <select id="statusLote" required>
+                        <option value="producao">Em Produção</option>
+                        <option value="pronto">Pronto para Estoque</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="closeModal('newBatchModal')">Cancelar</button>
+                    <button type="submit" class="btn-cadastrar">Registrar Lote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('batchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveBatch();
+        });
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // Resetar o formulário ao fechar
+            document.getElementById('batchForm').reset();
+            document.getElementById('quantidadeLote').value = '';
+            document.getElementById('statusLote').value = 'producao';
+        }
+        
+        // --- Funções de Dados (LocalStorage) ---
+
+        function loadBatches() {
+            const batchesJSON = localStorage.getItem('batches');
+            return batchesJSON ? JSON.parse(batchesJSON) : [];
+        }
+        
+        // Simula o carregamento dos picolés cadastrados (do módulo anterior)
+        function loadProducts() {
+            const productsJSON = localStorage.getItem('products');
+            return productsJSON ? JSON.parse(productsJSON) : [
+                { id: 201, name: 'Picolé de Morango Gourmet', flavorName: 'Morango Cremoso' }, 
+                { id: 202, name: 'Picolé de Chocolate Intenso', flavorName: 'Chocolate Tradicional' }, 
+                { id: 203, name: 'Picolé de Limão Refrescante', flavorName: 'Limão Siciliano' }
+            ]; // Dados mockados se a lista de produtos estiver vazia.
+        }
+
+        function loadBatchesAndProducts() {
+            // Carrega e renderiza a lista de lotes
+            const batches = loadBatches();
+            renderBatchList(batches);
+
+            // Carrega e preenche o dropdown de picolés
+            const products = loadProducts();
+            const select = document.getElementById('produtoLote');
+            
+            select.innerHTML = '<option value="" disabled selected>Selecione um Picolé</option>';
+            
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id; 
+                option.textContent = product.name + ' (' + product.flavorName + ')';
+                select.appendChild(option);
+            });
+        }
+
+        function saveBatch() {
+            const productId = document.getElementById('produtoLote').value;
+            const batchCode = document.getElementById('codigoLote').value.trim() || `LOTE-${Date.now()}`;
+            const quantity = parseInt(document.getElementById('quantidadeLote').value);
+            const productionDate = document.getElementById('dataProducao').value;
+            const status = document.getElementById('statusLote').value;
+            
+            const selectedProduct = loadProducts().find(p => p.id == productId);
+
+            if (!productId || !quantity || !productionDate) {
+                alert("Por favor, preencha o picolé, a quantidade e a data.");
+                return;
+            }
+
+            const newBatch = {
+                id: Date.now(), 
+                productId: productId,
+                productName: selectedProduct ? selectedProduct.name : 'Produto Não Encontrado',
+                batchCode: batchCode,
+                quantity: quantity,
+                productionDate: productionDate,
+                status: status // 'producao' ou 'pronto'
+            };
+
+            const batches = loadBatches();
+            batches.push(newBatch);
+
+            // Salva a lista atualizada no LocalStorage
+            localStorage.setItem('batches', JSON.stringify(batches));
+
+            closeModal('newBatchModal');
+            renderBatchList(batches);
+        }
+
+        function deleteBatch(id) {
+             if (!confirm('Tem certeza que deseja remover este lote de produção?')) {
+                return;
+            }
+            let batches = loadBatches();
+            batches = batches.filter(batch => batch.id !== id);
+            
+            // Salva a lista atualizada
+            localStorage.setItem('batches', JSON.stringify(batches));
+            renderBatchList(batches);
+        }
+
+        function getStatusDisplay(status) {
+            if (status === 'pronto') {
+                return `<span class="status-tag status-pronto">Pronto</span>`;
+            } else {
+                return `<span class="status-tag status-producao">Em Produção</span>`;
+            }
+        }
+
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        function renderBatchList(batches) {
+            const listContainer = document.getElementById('batchList');
+            const emptyState = document.getElementById('emptyState');
+            const tableBody = document.getElementById('batchTableBody');
+
+            // Limpa a tabela
+            tableBody.innerHTML = ''; 
+
+            if (batches.length === 0) {
+                // Estado Vazio
+                emptyState.style.display = 'block';
+                listContainer.style.display = 'none';
+            } else {
+                // Estado com Lista
+                emptyState.style.display = 'none';
+                listContainer.style.display = 'block';
+                
+                batches.forEach(batch => {
+                    const row = tableBody.insertRow();
+                    
+                    // Código do Lote
+                    row.insertCell().innerHTML = `<span class="batch-tag">${batch.batchCode}</span>`;
+                    
+                    // Picolé Produzido
+                    row.insertCell().textContent = batch.productName;
+                    
+                    // Quantidade
+                    row.insertCell().textContent = batch.quantity.toLocaleString('pt-BR');
+                    
+                    // Data de Produção
+                    row.insertCell().textContent = formatDate(batch.productionDate);
+
+                    // Status
+                    row.insertCell().innerHTML = getStatusDisplay(batch.status);
+                    
+                    // Ações (Detalhes, Editar/Excluir)
+                    const actionsCell = row.insertCell();
+                    actionsCell.classList.add('actions-cell');
+                    actionsCell.innerHTML = `
+                        <button type="button" class="action-btn" title="Ver Detalhes do Lote" style="color: #3F51B5;"><i class="fas fa-info-circle"></i></button> 
+                        <button type="button" class="action-btn" title="Mudar Status"><i class="fas fa-sync-alt"></i></button>
+                        <button type="button" class="action-btn" title="Excluir" onclick="deleteBatch(${batch.id})"><i class="fas fa-trash"></i></button>
+                    `;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

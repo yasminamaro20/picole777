@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Picolé Manager - Código Unificado</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            /* Alterado para 'Poppins' */
+            font-family: 'Poppins', sans-serif; 
+            background: #f7f7f7;
+            margin: 0;
+            /* Mantido o padding para o ícone fixo do carrinho */
+            padding-top: 60px; 
+        }
+        h1 {
+            text-align: center;
+            color: #ff4f81;
+            margin-bottom: 30px;
+        }
+        .products-grid {
+            display: grid;
+            /* Ajuste para melhor responsividade em telas menores */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .product-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            /* A animação 'flyToCart' já controla a transição de imagem */
+            /* transition: transform 0.4s; */ 
+        }
+        .btn {
+            background: #ff4f81;
+            padding: 10px 14px;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: backgroun  0.2s;
+        }
+        .btn:hover {
+            background: #d43b67;
+        }
+
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4f81;
+            color: #fff;
+            padding: 14px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .cart-count {
+            position: absolute;
+            background: #000;
+            padding: 4px 7px;
+            border-radius: 50%;
+            right: -8px;
+            top: -8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .cart-page, .payment-page {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .cart-item-details {
+            flex-grow: 1;
+        }
+        .cart-total {
+            text-align: right;
+            font-size: 1.5em;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+        .btn-delete {
+            background: #ff2c2c;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background: #cc2323;
+        }
+        .btn-checkout {
+            background: #4CAF50;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+        .btn-checkout:hover {
+            background: #3e8e41;
+        }
+        .back-button {
+            display: inline-block; /* Para que o cursor funcione */
+            margin-bottom: 20px;
+            cursor: pointer; /* Adicionado cursor pointer */
+            color: #ff4f81;
+            font-weight: 600;
+        }
+        
+        /* Opcional: Estilo básico para o input de quantidade */
+        .cart-item input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+// ---------------------- BANCO DE PRODUTOS ----------------------
+const products = [
+    { id: 1, name: "Picolé de Morango", price: 3.50, image: "img/picole_morango.png"},
+    { id: 2, name: "Picolé de Chocolate", price: 4.00, image: "img/picole_chocolate.jpeg"},
+    { id: 3, name: "Picolé de Coco", price: 3.00, image: "img/coco.png" },
+    { id: 4, name: "Picolé de Abacaxi", price: 3.20, image: "img/picolé_de_abacaxi.jpg" },
+    { id: 5, name: "Picolé de Manga", price: 3.30, image: "img/frozen-mango-popsicle-isolated-on-transparent-background-png.webp" },
+    { id: 6, name: "Picolé de Kiwi", price: 3.80, image: "img/picole_de_kiwi.jpeg" },
+    { id: 7, name: "Picolé de Limão", price: 3.10, image: "img/picolé_de_limão.webp" },
+    { id: 8, name: "Picolé de Uva", price: 3.40, image: "img/uva.webp" },
+    { id: 9, name: "Picolé de Maracujá", price: 3.60, image: "img/picolé_de_maracujá.jpeg" },
+    { id: 10, name: "Picolé de Cajá", price: 3.70, image: "img/picolé_de_cajá.jpg" },
+    { id: 11, name: "Picolé de Banana + chiclete", price: 7.00, image: "img/picolé_de_banana.jpeg"},
+    { id: 12, name: "Picolé de Pitaya", price: 4.50, image: "img/picole-toda-fruta-pitaya.jpg" },
+    { id: 13, name: "Picolé de Açaí", price: 5.00, image: "img/beguetto-acai-guarana-55g.jpg" },
+    { id: 14, name: "Picolé de Algodão Doce", price: 3.50, image: "img/algodão-doce.webp" },
+    { id: 15, name: "Picolé de milho verde", price: 4.20, image: "img/creme-milho-verde-01.webp"},
+    { id: 16, name: "Picolé de Café", price: 4.40, image: "img/picole-cafe.jpeg"},
+    { id: 17, name: "Picolé de Flocos Marechal Cândido Rondon", price: 8.90, image: "img/contato-de-fornecedor-de-picole-de-flocos.jpg"},
+    { id: 18, name: "Morango com leite condensado", price: 9.98, image: "img/morango-com-leite-condensado-1.png.webp" },
+    { id: 19, name: "Picolé Baunilha com Chocotella", price: 6.70, image: "img/picole-baunililha.png"},
+    { id: 20, name: "Picolé de Cereja", price: 4.10, image: "img/picole-de-cereja.jpeg"},
+    { id: 21, name: "Picolé de Pêssego", price: 3.30, image: "img/frozen-peach-popsicle-isolated-on-transparent-background-png.webp" },
+    { id: 22, name: "Picolé de Melancia", price: 3.10, image: "img/picole-malencia.png" },
+    { id: 23, name: "Picolé de Blue Ice", price: 3.80, image: "img/picole-ice-blue.webp" },
+    { id: 24, name: "Picolé de Nata", price: 3.90, image: "img/creme-nata-01.png.webp"},
+    { id: 25, name: "Sorvete Picolé Tablito", price: 9.99, image: "img/picole-kibon.png" },
+    { id: 26, name: "Picolé Sabor Pistacchio", price: 19.99, image: "img/sublime-pistache.png" },
+    { id: 27, name: "Picolé de Mousse de Maracujá", price: 9.99, image: "img/mousse.jpeg"},
+    { id: 28, name: "Picolé de NATA C/GOIABA", price: 5.50, image: "img/goiaba.png" },
+    { id: 29, name: "Picolé de Tutti-Frutti", price: 3.50, image: "img/tutti_frutti.jpeg"},
+    { id: 30, name: "Picolé de bob esponja", price: 5.70, image: "img/imagem-bob-esponja-1.png.webp"}
+];
+
+// ---------------------- Ícone do Carrinho ----------------------
+function CartIcon({ count, openCart }) {
+    return (
+        <div className="cart-icon" onClick={openCart} title="Abrir Carrinho">
+            🛒
+            {/* O count só aparece se for maior que zero */}
+            {count > 0 && <span className="cart-count">{count}</span>}
+        </div>
+    );
+}
+
+// ---------------------- Card do Produto ----------------------
+function ProductCard({ product, addToCart }) {
+
+    const imgRef = React.useRef();
+
+    function flyToCart() {
+        const img = imgRef.current;
+        const cart = document.querySelector(".cart-icon");
+
+        if(!img || !cart) {
+            // Se a imagem ou o ícone do carrinho não existirem, adiciona e retorna
+            addToCart(product);
+            return;
+        }
+
+        const clone = img.cloneNode(true);
+        const rect = img.getBoundingClientRect();
+        const cartRect = cart.getBoundingClientRect();
+
+        // Estilos e posição inicial do clone
+        clone.style.position = "fixed";
+        clone.style.left = rect.left + "px";
+        clone.style.top = rect.top + "px";
+        clone.style.width = "120px";
+        clone.style.height = "120px";
+        clone.style.zIndex = 2000;
+        clone.style.transition = "all 0.6s ease-in-out";
+        clone.style.borderRadius = "50%";
+        clone.style.objectFit = "cover"; // Garante que a imagem se ajuste à nova forma
+
+        document.body.appendChild(clone);
+
+        // Inicia a transição
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                clone.style.left = cartRect.left + cartRect.width/2 + "px";
+                clone.style.top = cartRect.top + cartRect.height/2 + "px";
+                clone.style.width = "0px";
+                clone.style.height = "0px";
+                clone.style.opacity = 0;
+            });
+        });
+
+        // Adiciona ao carrinho e remove o clone após a animação
+        setTimeout(() => {
+            clone.remove();
+            addToCart(product);
+        }, 600);
+    }
+
+    return (
+        <div className="product-card">
+            <img 
+                ref={imgRef} 
+                src={product.image} 
+                alt={product.name}
+                // Adiciona um tratamento de erro caso a imagem não carregue
+                onError={(e) => {e.target.onerror = null; e.target.src="https://via.placeholder.com/120?text=Picolé"}}
+            />
+            <h3>{product.name}</h3>
+            <p>R$ {product.price.toFixed(2)}</p>
+            <button className="btn" onClick={flyToCart}>Adicionar ao Carrinho</button>
+        </div>
+    );
+}
+
+// ---------------------- Página do Carrinho ----------------------
+function CartPage({ cart, updateQuantity, removeFromCart, closeCart, openPayment }) {
+    const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    return (
+        <div className="cart-page">
+            <span className="back-button" onClick={closeCart}>← Voltar aos Produtos</span>
+            <h1>🛒 Seu Carrinho</h1>
+
+            {cart.length === 0 ? (
+                <p style={{textAlign:"center"}}>Seu carrinho está vazio.</p>
+            ) : (
+                <>
+                    {cart.map(item => (
+                        <div key={item.id} className="cart-item">
+                            <img 
+                                src={item.image} 
+                                alt={item.name} 
+                                width="50" 
+                                style={{borderRadius:"6px", objectFit:"cover"}}
+                            />
+                            <div className="cart-item-details">
+                                <h4>{item.name}</h4>
+                                <p>Preço unitário: R$ {item.price.toFixed(2)}</p>
+                            </div>
+
+                            <input 
+                                type="number"
+                                value={item.quantity}
+                                min="1"
+                                // Garante que o valor é um número
+                                onChange={(e)=>updateQuantity(item.id, parseInt(e.target.value) || 1)} 
+                                style={{width:"50px"}}
+                            />
+
+                            <strong>R$ {(item.price * item.quantity).toFixed(2)}</strong>
+
+                            <button className="btn-delete" onClick={()=>removeFromCart(item.id)}>X</button>
+                        </div>
+                    ))}
+
+                    <div className="cart-total">
+                        <strong>Total: R$ {total.toFixed(2)}</strong>
+                    </div>
+
+                    <button 
+                        className="btn btn-checkout" 
+                        onClick={openPayment}
+                        style={{width:"100%"}}
+                    >
+                        Finalizar Pedido
+                    </button>
+                </>
+            )}
+        </div>
+    );
+}
+
+// ---------------------- Página de Pagamento (PIX) ----------------------
+function PaymentPage({ total, closePayment }) {
+
+    // Cria uma chave PIX simulada com dados formatados
+    const pixValue = `Chave: yasminamaro502@gmail.com | Valor: ${total.toFixed(2)} | Pedido: PCL${Math.floor(Math.random()*99999)}`;
+
+    return (
+        <div className="payment-page">
+            <span className="back-button" onClick={() => closePayment(false)}>← Voltar ao Carrinho</span>
+
+            <h1>💸 Pagamento via Pix</h1>
+
+            <div style={{
+                background:"#fff",
+                padding:"25px",
+                borderRadius:"12px",
+                boxShadow:"0 4px 10px rgba(0,0,0,0.1)",
+                textAlign:"center"
+            }}>
+
+                <h2>Total a Pagar: R$ {total.toFixed(2)}</h2>
+
+                <p>Escaneie o QR Code ou use o Pix Copia e Cola:</p>
+
+                <div style={{
+                    width:"200px",
+                    height:"200px",
+                    margin:"20px auto",
+                    background:"#eee",
+                    border:"1px solid #ccc",
+                    display:"flex",
+                    alignItems:"center",
+                    justifyContent:"center"
+                }}>
+                    <img 
+                        // QR Code estático apenas para visualização de exemplo, não funcional
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_many_purposes.svg/200px-QR_code_for_many_purposes.svg.png" 
+                        alt="QR Code Pix"
+                        style={{width:"100%", height:"100%", objectFit:"contain"}}
+                    />
+                </div>
+
+                <h3>Pix Copia e Cola:</h3>
+
+                <textarea 
+                    readOnly
+                    value={pixValue}
+                    style={{
+                        width:"90%",
+                        height:"60px",
+                        border:"1px solid #ff4f81",
+                        borderRadius:"8px",
+                        padding:"8px",
+                        resize:"none",
+                        marginTop: "10px"
+                    }}
+                    onClick={(e)=>{
+                        e.target.select();
+                        // Uso de Clipboard API moderno (mas fallback para document.execCommand)
+                        if (navigator.clipboard) {
+                            navigator.clipboard.writeText(pixValue).then(() => {
+                                alert("Código Pix Copiado!");
+                            });
+                        } else {
+                            document.execCommand("copy");
+                            alert("Código Pix Copiado! (Método antigo)");
+                        }
+                    }}
+                />
+                <p style={{fontSize:"0.8em", color:"#666"}}>Clique na área acima para copiar.</p>
+
+                <button
+                    className="btn btn-checkout"
+                    style={{width:"100%", marginTop:"10px"}}
+                    onClick={()=>{
+                        alert("Pagamento confirmado! O pedido foi finalizado. (Simulação)");
+                        // Limpa o carrinho e volta para a página de produtos
+                        closePayment(true); 
+                    }}
+                >
+                    Confirmar Pagamento
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ---------------------- APP PRINCIPAL ----------------------
+function App() {
+    // Inicializa o estado do carrinho e da view (products, cart, payment)
+    const [cart, setCart] = React.useState([]);
+    const [view, setView] = React.useState("products");
+
+    // Cálculos derivados
+    const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+    const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    // Adiciona um produto ao carrinho (ou incrementa a quantidade se já existir)
+    function addToCart(prod) {
+        setCart(prev=>{
+            const found = prev.find(p => p.id === prod.id);
+            if(found){
+                return prev.map(p => 
+                    p.id === prod.id ? {...p, quantity:p.quantity+1} : p
+                );
+            }
+            return [...prev, {...prod, quantity:1}];
+        });
+    }
+
+    // Atualiza a quantidade de um item no carrinho
+    function updateQuantity(id, qty) {
+        if(qty < 1) return;
+        setCart(prev => prev.map(p => p.id === id ? {...p, quantity:qty} : p));
+    }
+
+    // Remove um item do carrinho
+    function removeFromCart(id) {
+        setCart(prev => prev.filter(p => p.id !== id));
+    }
+
+    // Funções de navegação
+    function openCart() { setView("cart"); }
+    function closeCart() { setView("products"); }
+    function openPayment() { 
+        if(cart.length > 0) {
+            setView("payment"); 
+        } else {
+            alert("Seu carrinho está vazio!");
+        }
+    }
+
+    // Fecha o pagamento. Se 'clear' for true, limpa o carrinho.
+    function closePayment(clear=false) {
+        if(clear) setCart([]);
+        setView("products");
+    }
+
+    return (
+        <>
+            {/* O ícone do carrinho só aparece nas views de produtos e pagamento */}
+            {view !== "cart" && <CartIcon count={cartCount} openCart={openCart}/>}
+
+            {/* Renderização condicional das views */}
+            {view === "products" && (
+                <>
+                    <h1>Catálogo de Picolés 🍦</h1>
+                    <div className="products-grid">
+                        {products.map(p => (
+                            <ProductCard key={p.id} product={p} addToCart={addToCart}/>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {view === "cart" && (
+                <CartPage 
+                    cart={cart}
+                    updateQuantity={updateQuantity}
+                    removeFromCart={removeFromCart}
+                    closeCart={closeCart}
+                    openPayment={openPayment}
+                />
+            )}
+
+            {view === "payment" && (
+                <PaymentPage 
+                    total={total}
+                    closePayment={closePayment}
+                />
+            )}
+        </>
+    );
+}
+
+// Renderiza o componente principal na div 'root'
+ReactDOM.render(<App />, document.getElementById("root"));
+
+    </script>
+</body>
+</html>

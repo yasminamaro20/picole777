@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picolé Manager - Aditivos Nutritivos</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* --- Variáveis e Estilos Globais --- */
+        :root {
+            --cor-fundo-claro: #f8f9fc;
+            --cor-texto-principal: #333333;
+            --cor-texto-secundario: #666666;
+            
+            /* Cores Gerais */
+            --gradiente-roxo-nav: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+            --gradiente-cadastro-ativo: linear-gradient(90deg, #FF69B4 0%, #E94F8A 100%); 
+            
+            /* Cores Específicas do Módulo Aditivos (Ciano/Azul Claro) */
+            --cor-modulo-principal: #00BCD4; /* Ciano principal */
+            --gradiente-novo-item: linear-gradient(45deg, #00BCD4, #4DD0E1); /* Ciano vibrante */
+            --cor-tag-bg: #e0f7fa; /* Ciano bem claro para a tag */
+            
+            --cor-botao-cancelar: #f0f0f5;
+            --cor-input-borda: #ccc;
+            --cor-placeholder: #a0a0a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.5) 0%, transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.5) 0%, transparent 40%),
+                        var(--cor-fundo-claro);
+            min-height: 100vh;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- NAV BAR (Padrão) --- */
+        /* ------------------------------------------------------------------ */
+        .navbar-container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+        }
+        .navbar { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { display: flex; align-items: center; }
+        .logo-icon { width: 35px; height: 35px; margin-right: 10px; background: var(--gradiente-roxo-nav); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.4rem; }
+        .logo-name { font-size: 1.3rem; font-weight: 700; color: var(--cor-texto-principal); display: block; line-height: 1; }
+        .logo-subtitle { font-size: 0.75rem; font-weight: 400; color: var(--cor-texto-secundario); display: block; line-height: 1; }
+        .nav-links { list-style: none; display: flex; gap: 10px; }
+        .nav-links a { text-decoration: none; padding: 10px 20px; border-radius: 15px; color: var(--cor-texto-principal); font-weight: 600; transition: background 0.3s, color 0.3s; }
+        .nav-links .active { background: var(--gradiente-cadastro-ativo); color: white !important; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5); }
+        
+        /* ------------------------------------------------------------------ */
+        /* --- CONTEÚDO PRINCIPAL --- */
+        /* ------------------------------------------------------------------ */
+        .main-content { max-width: 1300px; margin: 0 auto; padding: 40px 20px; }
+        .header-gerenciamento { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* Tag e Título */
+        .header-gerenciamento .tag-gerenciamento { background-color: var(--cor-tag-bg); color: var(--cor-modulo-principal); padding: 5px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; margin-bottom: 10px; }
+        .header-gerenciamento .tag-gerenciamento i { margin-right: 5px; }
+        .header-gerenciamento h1 { 
+            font-size: 2.5rem; font-weight: 700; 
+            /* Gradiente Ciano */
+            background: -webkit-linear-gradient(45deg, var(--cor-modulo-principal), #0097A7); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; 
+        }
+        .header-gerenciamento p { font-size: 1rem; color: var(--cor-texto-secundario); margin-top: 5px; }
+
+        /* Botão Novo Item */
+        .btn-novo-item { display: inline-flex; align-items: center; padding: 12px 25px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; text-decoration: none; color: white; background: var(--gradiente-novo-item); box-shadow: 0 4px 15px rgba(0, 188, 212, 0.6); transition: transform 0.3s, box-shadow 0.3s; }
+        .btn-novo-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 188, 212, 0.8); }
+        .btn-novo-item i { margin-right: 10px; }
+
+        /* Card de Conteúdo */
+        .content-card { background-color: white; border-radius: 30px; padding: 40px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); text-align: center; }
+
+        /* Estado Vazio (image_9a6b9c.png) */
+        .empty-state { padding: 40px 0; }
+        .empty-state-icon i.fa-cube { font-size: 5rem; color: #B2EBF2; margin-bottom: 20px; display: block; } /* Ciano muito claro */
+        .empty-state-title { font-size: 1.5rem; font-weight: 600; color: var(--cor-texto-principal); margin-bottom: 5px; }
+        .empty-state-subtitle { color: var(--cor-texto-secundario); margin-bottom: 30px; }
+        .btn-adicionar-item { display: inline-flex; align-items: center; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; text-decoration: none; color: white; background: var(--gradiente-novo-item); box-shadow: 0 2px 10px rgba(0, 188, 212, 0.4); transition: transform 0.3s; }
+        .btn-adicionar-item i { margin-right: 8px; }
+
+        /* Tabela de Itens */
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0 15px; text-align: left; }
+        .data-table th { color: var(--cor-texto-secundario); font-weight: 600; padding: 10px 20px; border-bottom: 2px solid #f0f0f0; }
+        .data-table td { background-color: #fcfcfc; border-radius: 10px; padding: 15px 20px; color: var(--cor-texto-principal); font-weight: 500; transition: background-color 0.2s; }
+        .data-table tbody tr:hover td { background-color: #f6f6f6; }
+        .data-table .actions-cell { text-align: right; }
+        .data-table .action-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 1rem; margin-left: 15px; transition: color 0.2s; }
+        .data-table .action-btn:hover { color: var(--cor-modulo-principal); }
+        
+        /* Tag de Unidade na Tabela */
+        .unit-tag { 
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 0.85rem; 
+            font-weight: 700;
+            display: inline-block;
+            background-color: #e0f7fa; /* Ciano suave */
+            color: #00838F; /* Ciano forte */
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- MODAL --- */
+        /* ------------------------------------------------------------------ */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2); width: 90%; max-width: 500px; position: relative; background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.2) 0%, transparent 40%), radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.2) 0%, transparent 40%), white; }
+        .modal-card h2 { 
+            font-size: 1.8rem; font-weight: 700; margin-bottom: 30px; text-align: left; 
+            /* Título com gradiente roxo/rosa (Padrão de destaque do modal) */
+            background: -webkit-linear-gradient(45deg, #FF69B4, #EE3F89); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; 
+        }
+        .modal-card .close-btn { position: absolute; top: 25px; right: 25px; background: none; border: none; font-size: 1.5rem; color: var(--cor-texto-secundario); cursor: pointer; transition: color 0.2s; }
+        .form-row { display: flex; gap: 20px; }
+        .form-group { margin-bottom: 20px; text-align: left; flex: 1; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.9rem; color: var(--cor-texto-principal); margin-bottom: 5px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px 15px; border: 1px solid var(--cor-input-borda); border-radius: 10px; font-size: 1rem; background-color: #fcfcfc; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #EE3F89; box-shadow: 0 0 0 3px rgba(238, 63, 137, 0.2); outline: none; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        .btn-cancelar { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; background-color: var(--cor-botao-cancelar); color: var(--cor-texto-principal); transition: background-color 0.2s; }
+        /* Botão Cadastrar (Ciano do módulo) */
+        .btn-cadastrar { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: white; background: var(--gradiente-novo-item); box-shadow: 0 4px 10px rgba(0, 188, 212, 0.4); transition: background 0.2s; }
+        .btn-cadastrar:hover { background: linear-gradient(45deg, #4DD0E1, #00838F); }
+    </style>
+</head>
+<body onload="loadAdditives()">
+
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ice-cream"></i></div>
+                <div>
+                    <span class="logo-name">Picolé Manager</span>
+                    <span class="logo-subtitle">Sistema de Gestão Premium</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li> 
+                <li><a href="cadastros-modulo.html" class="active">Cadastros</a></li>
+                <li><a href="#">Produção</a></li>
+                <li><a href="#">Relatórios</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <div class="header-gerenciamento">
+            <div>
+                <span class="tag-gerenciamento"><i class="fas fa-plus-square"></i> Gerenciamento</span>
+                <h1>Aditivos Nutritivos</h1>
+                <p>Gerencie os aditivos e suplementos utilizados na produção</p>
+            </div>
+            
+            <button class="btn-novo-item" onclick="openModal('newAdditiveModal')">
+                <i class="fas fa-plus"></i> Novo Aditivo
+            </button>
+        </div>
+
+        <div class="content-card">
+            <div id="emptyState" class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-cube"></i></div>
+                <h2 class="empty-state-title">Nenhum aditivo cadastrado</h2>
+                <p class="empty-state-subtitle">Comece adicionando seu primeiro aditivo ou suplemento</p>
+                
+                <button class="btn-adicionar-item" onclick="openModal('newAdditiveModal')">
+                    <i class="fas fa-plus"></i> Adicionar Aditivo
+                </button>
+            </div>
+            
+            <div id="additiveList" style="display: none;">
+                 <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome/Código</th>
+                            <th>Função</th>
+                            <th>Unidade</th>
+                            <th>Preço (por unidade)</th>
+                            <th class="actions-cell">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="additiveTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </main>
+    
+    <div id="newAdditiveModal" class="modal-overlay">
+        <div class="modal-card">
+            <button type="button" class="close-btn" onclick="closeModal('newAdditiveModal')"><i class="fas fa-times"></i></button>
+            <h2>Novo Aditivo</h2>
+            
+            <form id="additiveForm">
+                <div class="form-group">
+                    <label for="nomeAditivo">Nome/Código *</label>
+                    <input type="text" id="nomeAditivo" placeholder="Ex: Goma Guar (E412)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="funcaoAditivo">Função Principal</label>
+                    <input type="text" id="funcaoAditivo" placeholder="Ex: Estabilizante, Corante, Aromatizante">
+                </div>
+                
+                <div class="form-row">
+                     <div class="form-group">
+                        <label for="unidadeAditivo">Unidade de Medida</label>
+                        <input type="text" id="unidadeAditivo" placeholder="Ex: g, mg, kg" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="precoUnitarioAditivo">Preço Unitário (R$)</label>
+                        <input type="number" id="precoUnitarioAditivo" placeholder="0.00" step="0.01" value="0.00">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="closeModal('newAdditiveModal')">Cancelar</button>
+                    <button type="submit" class="btn-cadastrar">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('additiveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveAdditive();
+        });
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // Resetar o formulário ao fechar
+            document.getElementById('additiveForm').reset();
+            document.getElementById('precoUnitarioAditivo').value = '0.00';
+        }
+
+        function loadAdditives() {
+            // Tenta carregar os dados do LocalStorage
+            const additivesJSON = localStorage.getItem('additives');
+            const additives = additivesJSON ? JSON.parse(additivesJSON) : [];
+            
+            renderAdditiveList(additives);
+            return additives;
+        }
+
+        function saveAdditive() {
+            const name = document.getElementById('nomeAditivo').value.trim();
+            const function_ = document.getElementById('funcaoAditivo').value.trim();
+            const unit = document.getElementById('unidadeAditivo').value.trim().toLowerCase();
+            const price = parseFloat(document.getElementById('precoUnitarioAditivo').value).toFixed(2);
+            
+            if (!name || !unit) {
+                alert("Por favor, preencha o nome/código e a unidade de medida do aditivo.");
+                return;
+            }
+
+            const newAdditive = {
+                id: Date.now(), 
+                name: name,
+                function: function_,
+                unit: unit,
+                price: price
+            };
+
+            const additives = loadAdditives();
+            additives.push(newAdditive);
+
+            // Salva a lista atualizada no LocalStorage
+            localStorage.setItem('additives', JSON.stringify(additives));
+
+            closeModal('newAdditiveModal');
+            renderAdditiveList(additives);
+        }
+
+        function deleteAdditive(id) {
+             if (!confirm('Tem certeza que deseja remover este aditivo?')) {
+                return;
+            }
+            let additives = loadAdditives();
+            additives = additives.filter(add => add.id !== id);
+            
+            // Salva a lista atualizada
+            localStorage.setItem('additives', JSON.stringify(additives));
+            renderAdditiveList(additives);
+        }
+
+        function renderAdditiveList(additives) {
+            const listContainer = document.getElementById('additiveList');
+            const emptyState = document.getElementById('emptyState');
+            const tableBody = document.getElementById('additiveTableBody');
+
+            // Limpa a tabela
+            tableBody.innerHTML = ''; 
+
+            if (additives.length === 0) {
+                // Estado Vazio
+                emptyState.style.display = 'block';
+                listContainer.style.display = 'none';
+            } else {
+                // Estado com Lista
+                emptyState.style.display = 'none';
+                listContainer.style.display = 'block';
+                
+                additives.forEach(add => {
+                    const row = tableBody.insertRow();
+                    
+                    // Nome/Código
+                    row.insertCell().textContent = add.name;
+                    
+                    // Função
+                    row.insertCell().textContent = add.function || 'N/A';
+                    
+                    // Unidade
+                    row.insertCell().innerHTML = `<span class="unit-tag">${add.unit.toUpperCase()}</span>`;
+                    
+                    // Preço
+                    row.insertCell().textContent = `R$ ${add.price.replace('.', ',')}`;
+                    
+                    // Ações (Editar/Excluir)
+                    const actionsCell = row.insertCell();
+                    actionsCell.classList.add('actions-cell');
+                    actionsCell.innerHTML = `
+                        <button type="button" class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button type="button" class="action-btn" title="Excluir" onclick="deleteAdditive(${add.id})"><i class="fas fa-trash"></i></button>
+                    `;
+                });
+            }
+        }
+    </script>
+</body>
+</html>

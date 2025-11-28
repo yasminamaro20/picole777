@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picolé Manager - Módulo de Relatórios</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* --- Variáveis e Estilos Globais --- */
+        :root {
+            --cor-fundo-claro: #f8f9fc;
+            --cor-texto-principal: #333333;
+            --cor-texto-secundario: #666666;
+            
+            /* Cores Gerais */
+            --gradiente-roxo-nav: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+            
+            /* Cores Específicas do Módulo Relatórios (Laranja/Vermelho) */
+            --cor-modulo-principal: #E53935; /* Vermelho mais forte */
+            --gradiente-relatorio-ativo: linear-gradient(45deg, #FF7043, #FF3D00); /* Laranja/Vermelho vibrante */
+            --cor-tag-bg: #ffcdd2; /* Vermelho bem claro para a tag */
+            
+            --cor-input-borda: #ccc;
+
+            /* Cores para o gráfico de picolé */
+            --cor-picole-morango: #FF6B8B;
+            --cor-picole-chocolate: #8B4513;
+            --cor-picole-limao: #BFFF00;
+            --cor-picole-maracuja: #FFD700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            background: radial-gradient(circle at top left, rgba(238, 238, 255, 0.5) 0%, transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(255, 230, 255, 0.5) 0%, transparent 40%),
+                        var(--cor-fundo-claro);
+            min-height: 100vh;
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- NAV BAR (Padrão) --- */
+        /* ------------------------------------------------------------------ */
+        .navbar-container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+        }
+        .navbar { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { display: flex; align-items: center; }
+        .logo-icon { width: 35px; height: 35px; margin-right: 10px; background: var(--gradiente-roxo-nav); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.4rem; }
+        .logo-name { font-size: 1.3rem; font-weight: 700; color: var(--cor-texto-principal); display: block; line-height: 1; }
+        .logo-subtitle { font-size: 0.75rem; font-weight: 400; color: var(--cor-texto-secundario); display: block; line-height: 1; }
+        .nav-links { list-style: none; display: flex; gap: 10px; }
+        .nav-links a { text-decoration: none; padding: 10px 20px; border-radius: 15px; color: var(--cor-texto-principal); font-weight: 600; transition: background 0.3s, color 0.3s; }
+        /* Estilo para o link de Relatórios ativo */
+        .nav-links .active-reports { background: var(--gradiente-relatorio-ativo); color: white !important; box-shadow: 0 4px 15px rgba(229, 57, 53, 0.5); }
+        
+        /* ------------------------------------------------------------------ */
+        /* --- CONTEÚDO PRINCIPAL --- */
+        /* ------------------------------------------------------------------ */
+        .main-content { max-width: 1300px; margin: 0 auto; padding: 40px 20px; }
+        .header-gerenciamento { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* Tag e Título */
+        .header-gerenciamento .tag-gerenciamento { 
+            background-color: var(--cor-tag-bg); 
+            color: var(--cor-modulo-principal); 
+            padding: 5px 15px; 
+            border-radius: 50px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            display: inline-flex; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        .header-gerenciamento .tag-gerenciamento i { margin-right: 5px; }
+        .header-gerenciamento h1 { 
+            font-size: 2.5rem; font-weight: 700; 
+            /* Gradiente Relatórios */
+            background: -webkit-linear-gradient(45deg, var(--cor-modulo-principal), #FF7043); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; 
+        }
+        .header-gerenciamento p { font-size: 1rem; color: var(--cor-texto-secundario); margin-top: 5px; }
+
+        /* Card de Conteúdo */
+        .content-card { 
+            background-color: white; 
+            border-radius: 30px; 
+            padding: 40px; 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); 
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* --- FILTROS/CONTROLES --- */
+        /* ------------------------------------------------------------------ */
+        .controls-bar {
+            background-color: #f7f7fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .controls-bar .form-group {
+            flex-grow: 1;
+            max-width: 250px;
+        }
+
+        .controls-bar label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            color: var(--cor-texto-principal); 
+            margin-bottom: 5px; 
+        }
+
+        .controls-bar input, .controls-bar select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--cor-input-borda);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: white;
+            transition: border-color 0.3s;
+        }
+        
+        .controls-bar select {
+            appearance: none; 
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0a0a0%22%20d%3D%22M287%2069.9l-143%20143L0%2069.9h287z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px;
+        }
+        
+        .controls-bar input:focus, .controls-bar select:focus {
+            border-color: var(--cor-modulo-principal);
+            outline: none;
+        }
+
+        .btn-aplicar-filtro {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            background: var(--gradiente-relatorio-ativo);
+            align-self: flex-end; 
+            box-shadow: 0 2px 10px rgba(229, 57, 53, 0.4);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-aplicar-filtro:hover { transform: translateY(-1px); }
+
+        /* ------------------------------------------------------------------ */
+        /* --- DASHBOARD METRICS CARDS --- */
+        /* ------------------------------------------------------------------ */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid;
+            transition: transform 0.3s;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card.producao { border-color: #4CAF50; } 
+        .metric-card.vendas { border-color: #2196F3; } 
+        .metric-card.custos { border-color: #FF9800; } 
+        .metric-card.receita { border-color: #E91E63; } 
+        
+        .metric-card .icon {
+            font-size: 1.8rem;
+            color: #ccc;
+            margin-bottom: 5px;
+            float: right;
+            opacity: 0.5;
+        }
+        
+        .metric-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cor-texto-secundario);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .metric-card p.value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--cor-texto-principal);
+            line-height: 1;
+        }
+        
+        .metric-card p.change {
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .metric-card p.change.up { color: #4CAF50; } 
+        .metric-card p.change.down { color: #E53935; } 
+
+        /* ------------------------------------------------------------------ */
+        /* --- CHART/GRÁFICOS SECTION --- */
+        /* ------------------------------------------------------------------ */
+        .chart-section h2 {
+            font-size: 1.5rem;
+            color: var(--cor-texto-principal);
+            margin-bottom: 20px;
+            text-align: left;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .chart-container-wrapper {
+            background-color: #f7f7fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Estilo para o "gráfico de picolé" (rosquinha CSS) */
+        .donut-chart {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--cor-picole-morango) 0% 35%,    /* Morango 35% */
+                var(--cor-picole-chocolate) 35% 65%, /* Chocolate 30% */
+                var(--cor-picole-limao) 65% 85%,     /* Limão 20% */
+                var(--cor-picole-maracuja) 85% 100%  /* Maracujá 15% */
+            );
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .donut-chart::before {
+            content: '';
+            position: absolute;
+            background: white;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-legend {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .chart-legend li {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--cor-texto-principal);
+            font-weight: 500;
+        }
+
+        .chart-legend span {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        .chart-legend .color-morango { background-color: var(--cor-picole-morango); }
+        .chart-legend .color-chocolate { background-color: var(--cor-picole-chocolate); }
+        .chart-legend .color-limao { background-color: var(--cor-picole-limao); }
+        .chart-legend .color-maracuja { background-color: var(--cor-picole-maracuja); }
+
+        /* Estilo para o placeholder de outros gráficos */
+        .chart-placeholder-small {
+            min-height: 150px;
+            background-color: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--cor-texto-secundario);
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px dashed #e0e0e0;
+            padding: 20px;
+            text-align: center;
+            flex: 1; /* Para ocupar o espaço na grid */
+        }
+        .chart-placeholder-small i {
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: #ccc;
+        }
+
+        .chart-grid-two-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body onload="loadReportData()">
+
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ice-cream"></i></div>
+                <div>
+                    <span class="logo-name">Picolé Manager</span>
+                    <span class="logo-subtitle">Sistema de Gestão Premium</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li> 
+                <li><a href="cadastros-modulo.html">Cadastros</a></li>
+                <li><a href="producao.html">Produção</a></li>
+                <li><a href="relatorios.html" class="active-reports">Relatórios</a></li>
+                <li>
+    <a href="picoles_vendas.html" class="btn-navbar carrinho-icon">
+        <i class="fas fa-shopping-cart"></i> Carrinho
+    </a>
+</li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <div class="header-gerenciamento">
+            <div>
+                <span class="tag-gerenciamento"><i class="fas fa-chart-line"></i> Análise</span>
+                <h1>Módulo de Relatórios</h1>
+                <p>Métricas e dashboards completos para decisões estratégicas</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            
+            <div class="controls-bar">
+                <div class="form-group">
+                    <label for="dataInicio">Data de Início</label>
+                    <input type="date" id="dataInicio" value="2025-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="dataFim">Data Final</label>
+                    <input type="date" id="dataFim" value="2025-11-17">
+                </div>
+                 <div class="form-group">
+                    <label for="tipoRelatorio">Tipo de Visualização</label>
+                    <select id="tipoRelatorio">
+                        <option value="mensal">Mensal</option>
+                        <option value="semanal">Semanal</option>
+                        <option value="anual">Anual</option>
+                    </select>
+                </div>
+                <button class="btn-aplicar-filtro" onclick="applyFilters()"><i class="fas fa-filter"></i> Aplicar</button>
+            </div>
+
+            <div class="metrics-grid">
+                
+                <div class="metric-card producao">
+                    <div class="icon"><i class="fas fa-industry"></i></div>
+                    <h3>Total Produzido (Unidades)</h3>
+                    <p class="value" id="metricProducao">12,500</p>
+                    <p class="change up">+15% vs Mês Anterior</p>
+                </div>
+                
+                <div class="metric-card vendas">
+                    <div class="icon"><i class="fas fa-truck-loading"></i></div>
+                    <h3>Picolés Vendidos</h3>
+                    <p class="value" id="metricVendas">10,800</p>
+                    <p class="change up">+8% vs Mês Anterior</p>
+                </div>
+
+                <div class="metric-card receita">
+                    <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+                    <h3>Receita Bruta Total (R$)</h3>
+                    <p class="value" id="metricReceita">R$ 54.000</p>
+                    <p class="change up">+12% vs Mês Anterior</p>
+                </div>
+                
+                <div class="metric-card custos">
+                    <div class="icon"><i class="fas fa-coins"></i></div>
+                    <h3>Custo Total (R$)</h3>
+                    <p class="value" id="metricCustos">R$ 18.500</p>
+                    <p class="change down">-5% vs Mês Anterior</p>
+                </div>
+                
+            </div>
+            
+            <div class="chart-section">
+                <h2>Distribuição de Vendas por Sabor</h2>
+                <div class="chart-container-wrapper">
+                    <div class="donut-chart"></div>
+                    <ul class="chart-legend">
+                        <li><span class="color-morango"></span> Morango (35%)</li>
+                        <li><span class="color-chocolate"></span> Chocolate (30%)</li>
+                        <li><span class="color-limao"></span> Limão (20%)</li>
+                        <li><span class="color-maracuja"></span> Maracujá (15%)</li>
+                    </ul>
+                </div>
+
+                <h2>Outras Métricas (Em Desenvolvimento)</h2>
+                <div class="chart-grid-two-cols">
+                     <div class="chart-placeholder-small">
+                        <i class="fas fa-chart-line"></i>
+                        Gráfico de Tendências de Vendas
+                    </div>
+                     <div class="chart-placeholder-small">
+                        <i class="fas fa-chart-bar"></i>
+                        Produção por Linha
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </main>
+    
+    <script>
+        function loadReportData() {
+            // Define a data atual no filtro final
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dataFim').value = today;
+            
+            // Dados fictícios (Mock Data) para os cards
+            const mockData = {
+                producao: '12,500',
+                vendas: '10,800',
+                receita: 'R$ 54.000',
+                custos: 'R$ 18.500',
+            };
+            
+            // Atualizar os cards com os dados
+            document.getElementById('metricProducao').textContent = mockData.producao;
+            document.getElementById('metricVendas').textContent = mockData.vendas;
+            document.getElementById('metricReceita').textContent = mockData.receita;
+            document.getElementById('metricCustos').textContent = mockData.custos;
+        }
+
+        function applyFilters() {
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+            const tipoRelatorio = document.getElementById('tipoRelatorio').value;
+
+            alert(`Filtros aplicados!\nPeríodo: ${dataInicio} a ${dataFim}\nVisualização: ${tipoRelatorio}\n\nOs dados do "gráfico de picolé" seriam atualizados com base nesses filtros.`);
+        }
+    </script>
+</body>
+</html>

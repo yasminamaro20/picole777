@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Picolé Manager</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #1f242b;
+            color: #fff;
+        }
+
+        header {
+            background: #121417;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            color: #fff;
+        }
+
+        .badge {
+            font-size: 12px;
+            color: #aaa;
+            margin-left: 10px;
+        }
+
+        nav a {
+            margin-left: 25px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            color: #d58cff;
+        }
+
+        .wrapper {
+            max-width: 800px;
+            margin: 60px auto;
+            background: #181c22;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 32px;
+            background: linear-gradient(45deg, #ff48c4, #a175ff, #5ec2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 35px;
+        }
+
+        label {
+            font-size: 15px;
+            margin-bottom: 6px;
+            display: block;
+            color: #ddd;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: #101316;
+            color: #fff;
+            outline: none;
+            margin-bottom: 20px;
+            font-size: 15px;
+            border: 1px solid #2a2f35;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #a175ff;
+            box-shadow: 0 0 5px #a175ff70;
+        }
+
+        .btn-whatsapp {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #25d366, #1ebe5d);
+            transition: 0.3s;
+        }
+
+        .btn-whatsapp:hover {
+            filter: brightness(1.15);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+
+    <script>
+        function enviarWhatsApp() {
+            const nome = document.getElementById("nome").value;
+            const email = document.getElementById("email").value;
+            const mensagem = document.getElementById("mensagem").value;
+
+            const numero = "51994327807"; // Coloque seu número com DDI + DDD
+
+            if (nome.trim() === "" || email.trim() === "" || mensagem.trim() === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const texto = encodeURIComponent(
+                `📩 NOVA MENSAGEM\n\n` +
+                `👤 Nome: ${nome}\n` +
+                `📧 Email: ${email}\n` +
+                `💬 Mensagem:\n${mensagem}`
+            );
+
+            window.open(`https://wa.me/${numero}?text=${texto}`, "_blank");
+        }
+    </script>
+</head>
+
+<body>
+
+<header>
+    <h1>Picolé Manager <span class="badge">Sistema Premium</span></h1>
+
+    <nav>
+        <a href="index.html">Início</a>
+        <a href="cadastros-modulo.html">Cadastros</a>
+        <a href="producao.html">Produção</a>
+        <a href="relatorios.html">Relatórios</a>
+    </nav>
+</header>
+
+<div class="wrapper">
+    
+    <h2>Entre em Contato</h2>
+    <p>Fale conosco diretamente pelo WhatsApp.</p>
+
+    <label><i class="fa fa-user"></i> Nome</label>
+    <input id="nome" type="text" placeholder="Seu nome">
+
+    <label><i class="fa fa-envelope"></i> Email</label>
+    <input id="email" type="email" placeholder="Seu email">
+
+    <label><i class="fa fa-message"></i> Mensagem</label>
+    <textarea id="mensagem" rows="5" placeholder="Digite sua mensagem..."></textarea>
+
+    <button class="btn-whatsapp" onclick="enviarWhatsApp()">
+        <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+    </button>
+
+</div>
+
+<footer>
+    © 2025 Picolé Manager — Todos os direitos reservados.
+</footer>
+
+</body>
+</html>

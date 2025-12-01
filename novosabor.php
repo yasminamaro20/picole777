@@ -1,0 +1,478 @@
+<?php
+
+// Conexão com o banco
+$con = new mysqli("localhost", "root", "", "picoledb");
+if ($con->connect_error) {
+    die("Erro na conexão: " . $con->connect_error);
+}
+
+// Se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $nome = $_POST['nomesorvete'];
+    $preco = $_POST['precounitario'];
+    $descricao = $_POST['descricao'];
+
+    $stmt = $con->prepare("INSERT INTO sabores (nome, preco, descricao) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $nome, $preco, $descricao);
+    $stmt->execute();
+    $stmt->close();
+
+    // Atualiza a página após salvar
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Buscar sabores cadastrados
+$result = $con->query("SELECT * FROM sabores ORDER BY id DESC");
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar novo sabor</title>
+
+    <style>
+        :root {
+            --cor-fundo-claro: #f8f9fc;
+            --cor-texto-principal: #333333;
+            --cor-texto-secundario: #666666;
+            --gradiente-roxo-claro: linear-gradient(90deg, #5D54FE 0%, #EE3F89 100%);
+            --gradiente-rosa-claro: linear-gradient(90deg, #FF69B4 0%, #FF1493 100%);
+            --gradiente-rosa-botao: linear-gradient(90deg, #FF69B4 0%, #E94F8A 100%);
+            --shadow-light: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --arredondamento-card: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--cor-texto-principal);
+        }
+
+        .navbar-container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .navbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            background: linear-gradient(45deg, #FF69B4, #9370DB);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .logo-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--cor-texto-principal);
+            display: block;
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--cor-texto-secundario);
+            display: block;
+            line-height: 1;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            color: var(--cor-texto-principal);
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .nav-links .active {
+            background: var(--gradiente-roxo-claro);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(93, 84, 254, 0.5);
+        }
+
+        /* --- BOTÕES GERAIS E GRADIENTES --- */
+        .btn-novo-sabor,
+        .btn-adicionar-sabor {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            background: var(--gradiente-rosa-claro);
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .btn-novo-sabor:hover,
+        .btn-adicionar-sabor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.7);
+        }
+
+        .btn-novo-sabor i,
+        .btn-adicionar-sabor i {
+            margin-right: 8px;
+            color: white;
+        }
+
+        .page-content-wrapper {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header-gerenciamento {
+            margin-bottom: 30px;
+        }
+
+        .tag-gerenciamento {
+            background-color: rgba(147, 64, 255, 0.1);
+            color: #9340FF;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tag-gerenciamento i {
+            margin-right: 5px;
+            color: #9340FF;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subtitle-gerenciamento {
+            font-size: 1rem;
+            color: var(--cor-texto-secundario);
+            margin-top: -5px;
+        }
+
+        .header-gerenciamento h1.gradient-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: -webkit-linear-gradient(45deg, #FF69B4, #9370DB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-card-content {
+            width: 100%;
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 25px;
+            min-height: 500px;
+            box-shadow: var(--shadow-light);
+            border-bottom: 5px solid transparent;
+            border-image: linear-gradient(90deg, #FF69B4 0%, #9370DB 100%) 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .empty-state,
+        .sabores-table-container {
+            width: 100%;
+        }
+
+        /* --- ESTADO VAZIO (Empty State) --- */
+        .empty-state {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #DDDDDD;
+            margin-bottom: 20px;
+            background: -webkit-linear-gradient(45deg, #ffb3d9, #d9b3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--cor-texto-principal);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--cor-texto-secundario);
+            margin-bottom: 30px;
+        }
+
+        .btn-adicionar-sabor {
+            padding: 12px 25px;
+        }
+
+        /* --- TABELA DE SABORES STYLES --- */
+        .sabores-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .sabores-table th {
+            text-align: left;
+            padding: 10px 0;
+            color: var(--cor-texto-secundario);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .sabores-table td {
+            padding: 15px 0;
+            vertical-align: middle;
+            font-size: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sabores-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sabor-nome {
+            font-weight: 600;
+            color: var(--cor-texto-principal);
+        }
+
+        .sabor-descricao {
+            font-size: 0.9rem;
+            color: var(--cor-texto-secundario);
+        }
+
+        .sabor-preco {
+            font-weight: 700;
+            color: #39D463;
+        }
+
+        /* --- FORMULÁRIO EM CARD --- */
+        .form-card {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            border: 2px solid rgba(255, 105, 180, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- GRUPOS DO FORM --- */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--cor-texto-principal);
+        }
+
+        /* --- CAMPOS DO FORM --- */
+        .form-card input,
+        .form-card textarea {
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: var(--cor-fundo-claro);
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-card input:focus,
+        .form-card textarea:focus {
+            outline: none;
+            border-color: #FF69B4;
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
+        }
+
+        /* botão full */
+        .full-width {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .juncao{
+            display: flex;
+            gap: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--header da pagina recriada-->
+    <header class="navbar-container">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ice-cream"></i></div>
+                <div>
+                    <span class="logo-name">Picolé Manager</span>
+                    <span class="logo-subtitle">Sistema de Gestão Premium</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="cadastros-modulo.html" class="btn-navbar active">Cadastros</a></li>
+                <li><a href="producao.html">Produção</a></li>
+                <li><a href="#">Relatórios</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- main da pagina recriada-->
+
+    <main class="page-content-wrapper">
+        <section class="header-gerenciamento">
+            <span class="tag tag-gerenciamento"><i class="fas fa-star"></i> Gerenciamento</span>
+            <div class="header-row">
+                <div>
+                    <h1 class="gradient-text">Sabores de Picolé</h1>
+                    <p class="subtitle-gerenciamento">Gerencie os sabores disponíveis e seus preços</p>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="juncao">
+           <form method="post" action="" class="form-card">
+            <div class="form-group">
+                <label for="nomesorvete">Nome do novo sabor</label>
+                <input type="text" name="nomesorvete" id="nomesorvete" required>
+            </div>
+
+            <div class="form-group">
+                <label for="precounitario">Preço unitário</label>
+                <input type="text" name="precounitario" id="precounitario" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição do produto</label>
+                <textarea name="descricao" id="descricao" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn-adicionar-sabor full-width">
+                <i class="fas fa-save"></i> Salvar Sabor
+            </button>
+
+        </form>
+
+        <section id="mainCard" class="main-card-content" >
+            <?php
+$temDados = ($result->num_rows > 0);
+?>
+
+
+           <div id="emptyState" class="empty-state" style="display: <?= $temDados ? 'none' : 'block' ?>;">
+
+                <div class="empty-icon"><i class="fas fa-tint"></i></div>
+                <h3>Nenhum sabor cadastrado</h3>
+                <p>Comece adicionando seu primeiro sabor de picolé</p>
+                <button type="button" class="btn-adicionar-sabor" onclick="abrirModal('novo')">
+                    <i class="fas fa-plus"></i> Adicionar Sabor
+                </button>
+            </div>
+
+           <div id="dataTable" class="sabores-table-container" style="display: <?= $temDados ? 'block' : 'none' ?>;">
+
+                <table class="sabores-table">
+                    <thead>
+                        <tr>
+                            <th>Nome e Descrição</th>
+                            <th>Preço Unitário</th>
+                            <th style="width: 150px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="saboresList">
+    <?php if ($result->num_rows > 0): ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td>
+                    <div class="sabor-nome"><?= $row['nome'] ?></div>
+                    <div class="sabor-descricao"><?= $row['descricao'] ?></div>
+                </td>
+                <td class="sabor-preco">R$ <?= number_format($row['preco'], 2, ',', '.') ?></td>
+                <td>
+                    <button class="btn-novo-sabor">Editar</button>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    <?php endif; ?>
+</tbody>
+                </table>
+            </div>
+
+        </section>
+
+        </section>
+        
+
+
+        
+
+    </main>
+
+
+
+</body>
+
+</html>

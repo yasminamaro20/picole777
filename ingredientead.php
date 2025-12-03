@@ -1,15 +1,43 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<?php
 
+// Conexão com o banco
+$con = new mysqli("localhost", "root", "", "ingredientes");
+if ($con->connect_error) {
+    die("Erro na conexão: " . $con->connect_error);
+}
+
+// Se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $nome = $_POST['nome'];
+    $preco = $_POST['precounitario'];
+    $unidade = $_POST['unidademedia'];
+    $estoqueatual = $_POST['EstoqueAtual'];
+    $estoqueminimo = $_POST['EstoqueMinimo'];
+
+    $stmt = $con->prepare("INSERT INTO cadastroingredientes  (nome, preco , unidademedida, estoqueatual, estoqueminimo) VALUES (?,?,?,?,?)");
+    $stmt->bind_param("sssss", $nome, $preco, $unidade, $estoqueatual, $estoqueminimo);
+    $stmt->execute();
+    $stmt->close();
+
+    // Atualiza a página após salvar
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Buscar sabores cadastrados
+$result = $con->query("SELECT * FROM cadastroingredientes ORDER BY id DESC");
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Picolé Manager - Ingredientes</title>
+    <title>Document</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <style>
+  <style>
         /* --- Variáveis e Estilos Globais --- */
         :root {
             --cor-fundo-claro: #f8f9fc;
@@ -195,6 +223,9 @@
 
         /* Card de Conteúdo */
         .content-card {
+            gap:100px;
+            justify-content: space-around;
+            display:flex;
             background-color: white;
             border-radius: 30px;
             padding: 40px;
@@ -446,10 +477,14 @@
             box-shadow: 0 4px 10px rgba(76, 217, 100, 0.4);
             transition: background 0.2s;
         }
+        .juncao{
+            display:flex;
+            gap:300px;
+        }
     </style>
 </head>
-
-<body onload="loadIngredients()">
+<body>
+    <body onload="loadIngredients()">
 
     <header class="navbar-container">
         <nav class="navbar">
@@ -471,219 +506,112 @@
 
     <main class="main-content">
 
+        <!--title header-->
+
         <div class="header-gerenciamento">
             <div>
                 <span class="tag-gerenciamento"><i class="fas fa-seedling"></i> Gerenciamento</span>
                 <h1>Ingredientes</h1>
                 <p>Controle de estoque e preços</p>
             </div>
-           <a href="ingredientead.php"><button>
-                        <i class="fas fa-plus"></i> adicionar ingrediente
-                    </button>
-                </a>
-        
         </div>
 
-        <div class="content-card">
-            <div id="emptyState" class="empty-state">
-                <div class="empty-state-icon"><i class="fas fa-leaf"></i></div>
-                <h2 class="empty-state-title">Nenhum ingrediente cadastrado</h2>
-                <p class="empty-state-subtitle">Comece adicionando seu primeiro ingrediente e o estoque atual</p>
+        <!--separação entre form e local que aparece os dados-->
 
-                <button class="btn-adicionar-item" onclick="openModal('newIngredientModal')">
-                    <i class="fas fa-plus"></i> Adicionar Ingrediente
+      
+        <div class="content-card">
+
+          <section class="juncao">
+            
+            <form method="post" action="" class="form-card">
+                <div class="form-group">
+                    <label for="nome">Ingrediente </label>
+                    <input type="text" name="nome" id="nomesorvete" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="precounitario">Preço unitário</label>
+                    <input type="text" name="precounitario" id="precounitario" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Unidade media</label>
+                    <input name="unidademedia" id="descricao" required>
+                </div>
+                 <div class="form-group">
+                    <label for="descricao">Estoque Atual</label>
+                    <input name="EstoqueAtual" id="descricao" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricao">Estoque minimo</label>
+                    <input name="EstoqueMinimo" id="descricao" required>
+                </div>
+
+                <button type="submit" class="btn-adicionar-sabor full-width">
+                    <i class="fas fa-save"></i> Salvar ingrediente
+                </button>
+            </form>
+
+
+            
+             <section id="mainCard" class="main-card-content" >
+            <?php
+$temDados = ($result->num_rows > 0);
+?>
+
+
+           <div id="emptyState" class="empty-state" style="display: <?= $temDados ? 'none' : 'block' ?>;">
+
+                <div class="empty-icon"><i class="fas fa-tint"></i></div>
+                <h3>Nenhum sabor cadastrado</h3>
+                <p>Comece adicionando seu primeiro sabor de picolé</p>
+                <button type="button" class="btn-adicionar-sabor" onclick="abrirModal('novo')">
+                    <i class="fas fa-plus"></i> Adicionar Sabor
                 </button>
             </div>
 
-            <div id="ingredientList" style="display: none;">
-                <table class="ingredient-table">
+           <div id="dataTable" class="sabores-table-container" style="display: <?= $temDados ? 'block' : 'none' ?>;">
+
+                <table class="sabores-table">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Unidade</th>
-                            <th>Estoque Atual</th>
+                            <th>Nome e Descrição</th>
                             <th>Preço Unitário</th>
-                            <th class="actions-cell">Ações</th>
+                            <th style="width: 150px;">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="ingredientTableBody">
-                    </tbody>
+                    <tbody id="saboresList">
+    <?php if ($result->num_rows > 0): ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td>
+                    <div class="sabor-nome"><?= $row['nome'] ?></div>
+                    <div class="sabor-descricao"><?= $row['descricao'] ?></div>
+                </td>
+                <td class="sabor-preco">R$ <?= number_format($row['preco'], 2, ',', '.') ?></td>
+                <td>
+                    <button class="btn-novo-sabor">Editar</button>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    <?php endif; ?>
+</tbody>
                 </table>
             </div>
+
+        </section>
+            </section>
+
+
+           
         </div>
 
     </main>
 
-    <div id="newIngredientModal" class="modal-overlay">
-        <div class="modal-card">
-            <button type="button" class="close-btn" onclick="closeModal('newIngredientModal')"><i
-                    class="fas fa-times"></i></button>
-            <h2>Novo Ingrediente</h2>
-
-            <form id="ingredientForm">
-                <div class="form-group">
-                    <label for="nomeIngrediente">Nome *</label>
-                    <input type="text" id="nomeIngrediente" placeholder="Ex: Leite" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="unidadeMedida">Unidade de Medida</label>
-                    <input type="text" id="unidadeMedida" placeholder="Ex: kg, litro, unidade" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="precoUnitario">Preço Unitário (R$)</label>
-                    <input type="number" id="precoUnitario" placeholder="0.00" step="0.01" value="0.00">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="estoqueAtual">Estoque Atual</label>
-                        <input type="number" id="estoqueAtual" placeholder="0" step="1" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="estoqueMinimo">Estoque Mínimo</label>
-                        <input type="number" id="estoqueMinimo" placeholder="0" step="1" value="0">
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancelar"
-                        onclick="closeModal('newIngredientModal')">Cancelar</button>
-                    <button type="submit" class="btn-cadastrar">Cadastrar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('ingredientForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            saveIngredient();
-        });
-
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            // Resetar o formulário ao fechar
-            document.getElementById('ingredientForm').reset();
-            // Garantir que os campos numéricos voltem para 0.00
-            document.getElementById('precoUnitario').value = '0.00';
-            document.getElementById('estoqueAtual').value = '0';
-            document.getElementById('estoqueMinimo').value = '0';
-        }
-
-        function loadIngredients() {
-            // Tenta carregar os ingredientes do LocalStorage
-            const ingredientsJSON = localStorage.getItem('ingredients');
-            const ingredients = ingredientsJSON ? JSON.parse(ingredientsJSON) : [];
-
-            renderIngredientList(ingredients);
-            return ingredients;
-        }
-
-        function saveIngredient() {
-            const name = document.getElementById('nomeIngrediente').value.trim();
-            const unit = document.getElementById('unidadeMedida').value.trim();
-            const price = parseFloat(document.getElementById('precoUnitario').value).toFixed(2);
-            const currentStock = parseInt(document.getElementById('estoqueAtual').value);
-            const minStock = parseInt(document.getElementById('estoqueMinimo').value);
-
-            if (!name || !unit) {
-                alert("Por favor, preencha o nome e a unidade de medida do ingrediente.");
-                return;
-            }
-
-            const newIngredient = {
-                id: Date.now(), // ID simples baseado no timestamp
-                name: name,
-                unit: unit,
-                price: price,
-                currentStock: currentStock,
-                minStock: minStock
-            };
-
-            const ingredients = loadIngredients();
-            ingredients.push(newIngredient);
-
-            // Salva a lista atualizada no LocalStorage
-            localStorage.setItem('ingredients', JSON.stringify(ingredients));
-
-            closeModal('newIngredientModal');
-            renderIngredientList(ingredients);
-        }
-
-        function deleteIngredient(id) {
-            if (!confirm('Tem certeza que deseja remover este ingrediente?')) {
-                return;
-            }
-            let ingredients = loadIngredients();
-            ingredients = ingredients.filter(ing => ing.id !== id);
-
-            // Salva a lista atualizada
-            localStorage.setItem('ingredients', JSON.stringify(ingredients));
-            renderIngredientList(ingredients);
-        }
-
-        function renderIngredientList(ingredients) {
-            const listContainer = document.getElementById('ingredientList');
-            const emptyState = document.getElementById('emptyState');
-            const tableBody = document.getElementById('ingredientTableBody');
-
-            // Limpa a tabela
-            tableBody.innerHTML = '';
-
-            if (ingredients.length === 0) {
-                // Estado Vazio
-                emptyState.style.display = 'block';
-                listContainer.style.display = 'none';
-            } else {
-                // Estado com Lista
-                emptyState.style.display = 'none';
-                listContainer.style.display = 'block';
-
-                ingredients.forEach(ing => {
-                    const row = tableBody.insertRow();
-
-                    // Lógica para determinar o nível de estoque para a tag
-                    let stockClass = 'stock-ok';
-                    let stockText = `${ing.currentStock} ${ing.unit}`;
-
-                    if (ing.currentStock <= ing.minStock && ing.currentStock > 0) {
-                        stockClass = 'stock-low';
-                    } else if (ing.currentStock === 0) {
-                        stockClass = 'stock-critical';
-                    }
-
-                    // Nome
-                    row.insertCell().textContent = ing.name;
-
-                    // Unidade
-                    row.insertCell().textContent = ing.unit.toUpperCase();
-
-                    // Estoque Atual (com tag de nível)
-                    row.insertCell().innerHTML = `<span class="stock-level ${stockClass}">${stockText}</span>`;
-
-                    // Preço
-                    row.insertCell().textContent = `R$ ${ing.price.replace('.', ',')}`;
-
-                    // Ações (Editar/Excluir)
-                    const actionsCell = row.insertCell();
-                    actionsCell.classList.add('actions-cell');
-                    actionsCell.innerHTML = `
-                        <button type="button" class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
-                        <button type="button" class="action-btn" title="Excluir" onclick="deleteIngredient(${ing.id})"><i class="fas fa-trash"></i></button>
-                    `;
-                });
-            }
-        }
-
-        // Chamada inicial ao carregar o corpo para garantir que a lista seja carregada
-        // A tag 'onload' no <body> já chama loadIngredients()
-    </script>
+    
 </body>
-
 </html>
+
+
+
